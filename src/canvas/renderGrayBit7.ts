@@ -1,8 +1,8 @@
-import drawFittedImage from "./drawFittedImage";
-import { AppImageData } from "../types/ImageData";
+import { AppImageData } from '../types/ImageData';
+import drawFittedImage from './drawFittedImage';
 
 export const renderGrayBit7 = (canvas: HTMLCanvasElement, imageData: AppImageData) => {
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
   if (!ctx || !imageData.pixels) return;
 
   const { width, height, depth, pixels } = imageData;
@@ -10,11 +10,11 @@ export const renderGrayBit7 = (canvas: HTMLCanvasElement, imageData: AppImageDat
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  const tmpCanvas = document.createElement("canvas");
+  const tmpCanvas = document.createElement('canvas');
   tmpCanvas.width = width;
   tmpCanvas.height = height;
 
-  const tmpCtx = tmpCanvas.getContext("2d");
+  const tmpCtx = tmpCanvas.getContext('2d');
   const imgData = tmpCtx!.createImageData(width, height);
   const hasMask = depth === 8;
 
@@ -24,7 +24,7 @@ export const renderGrayBit7 = (canvas: HTMLCanvasElement, imageData: AppImageDat
     const gray8 = Math.floor((gray7 / 127) * 255);
     let alpha = 255;
 
-    if (hasMask) alpha = (byte & 0b10000000) ? 255 : 0;
+    if (hasMask) alpha = byte & 0b10000000 ? 255 : 0;
 
     const idx = i * 4;
     imgData.data[idx + 0] = gray8;

@@ -1,7 +1,4 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 }
 
@@ -39,4 +36,72 @@
 
 .read-the-docs {
   color: #888;
+}
+
+.scale-button {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+
+  padding: 10px 16px;
+  border-radius: 8px;
+
+  background: #2b7cff;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  transition:
+    all 0.2s ease,
+    transform 0.15s ease;
+}
+
+.scale-button:hover {
+  background: #1f64d3;
+  transform: translateY(-1px);
+}
+
+.scale-button:active {
+  background: #1b57b7;
+  transform: translateY(0);
+}
+
+.canvas-wrap {
+  position: absolute;
+  inset: 0;
+  left: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #f9fafb;
+}
+.canvas-inner {
+  will-change: transform;
+}
+
+canvas {
+  display: block;
+}
+
+.img-view {
+  position: absolute;
+  inset: 0;
+  left: 72px; /* место под тулбар */
+  overflow: auto; /* полосы прокрутки появляются при переполнении */
+  background: #f9fafb;
+  cursor: grab;
+}
+
+/* Холст фактического размера (масштабируем перерисовкой) */
+.canvas {
+  display: block;
+  margin: 60px; /* комфортные поля вокруг изображения */
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #e5e7eb;
 }

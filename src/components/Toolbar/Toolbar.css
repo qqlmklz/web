@@ -1,0 +1,44 @@
+.toolbar {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  display: grid;
+  gap: 8px;
+  z-index: 20;
+}
+
+.tool-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #111;
+  box-sizing: border-box;
+}
+
+.tool-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  flex-shrink: 0;
+  display: block;
+}
+
+.tool-btn:hover {
+  background: #f3f4f6;
+}
+
+.tool-btn.active {
+  outline: 2px solid #1677ff;
+  outline-offset: 0;
+  border-color: #1677ff33;
+  color: #1677ff;
+}

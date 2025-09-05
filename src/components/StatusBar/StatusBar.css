@@ -1,0 +1,25 @@
+.status-bar {
+  position: fixed;
+  left: 90px;
+  bottom: 16px;
+
+  padding: 8px 10px;
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.95);
+  color: #111;
+  font-size: 13px;
+
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.12);
+  backdrop-filter: saturate(140%) blur(2px);
+
+  line-height: 1.4;
+}
+
+.status-bar p {
+  margin: 2px 0;
+}
+
+.status-bar strong {
+  font-weight: 600;
+}

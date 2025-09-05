@@ -1,4 +1,4 @@
-import { AppImageData } from "../types/ImageData";
+import { AppImageData } from '../types/ImageData';
 
 export const readGrayBit7 = (arrayBuffer: ArrayBuffer): AppImageData | null => {
   const dataView = new DataView(arrayBuffer);
@@ -9,7 +9,7 @@ export const readGrayBit7 = (arrayBuffer: ArrayBuffer): AppImageData | null => {
     dataView.getUint8(3)
   );
 
-  if (signature !== "GB7\x1D") return null;
+  if (signature !== 'GB7\x1D') return null;
 
   const flag = dataView.getUint8(5);
   const width = dataView.getUint16(6);
@@ -26,7 +26,7 @@ export const readGrayBit7 = (arrayBuffer: ArrayBuffer): AppImageData | null => {
     width,
     height,
     depth,
-    format: "gb7",
+    format: 'gb7',
     pixels: pixelData,
   };
 };

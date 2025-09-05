@@ -1,32 +1,29 @@
 .uploader-wrapper {
-    display: inline-block;
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 10;
-  }
-  
-  /* скрываем input */
-  .file-input {
-    display: none;
-  }
-  
-  /* стилизуем label как кнопку */
-  .upload-button {
-    display: inline-block;
-    padding: 12px 24px;
-    font-size: 15px;
-    font-weight: 600;
-    background: linear-gradient(135deg, #6e07f3, #9c1aff);
-    color: white;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s ease;
-    box-shadow: 0 4px 12px rgba(156, 26, 255, 0.4);
-  }
-  
-  .upload-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(156, 26, 255, 0.6);
-  }
-  
+  display: inline-block;
+  position: absolute;
+  top: 20px;
+  left: 90px;
+  z-index: 10;
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-button {
+  display: inline-block;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #6e07f3, #9c1aff);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  box-shadow: 0 4px 12px rgba(156, 26, 255, 0.4);
+}
+
+.upload-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(156, 26, 255, 0.6);
+}

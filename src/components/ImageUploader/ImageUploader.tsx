@@ -1,5 +1,5 @@
-import React from "react";
-import "./ImageUploader.css";
+import React from 'react';
+import './ImageUploader.css';
 
 interface Props {
   onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
