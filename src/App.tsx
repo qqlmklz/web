@@ -21,13 +21,12 @@ type AppStateImage = Partial<AppImageData> & {
 };
 
 const App = () => {
-  const [isScaleOpen, setIsScaleOpen] = useState(false);
   const [imageData, setImageData] = useState<AppStateImage>({});
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const srcImgRef = useRef<HTMLImageElement | null>(null); // для PNG/JPEG
-  const gb7DataRef = useRef<AppImageData | null>(null); // для GB7 (сырые данные)
-  const offscreenRef = useRef<HTMLCanvasElement | null>(null); // оффскрин под GB7
+  const srcImgRef = useRef<HTMLImageElement | null>(null); // PNG/JPEG
+  const gb7DataRef = useRef<AppImageData | null>(null); // GB7 raw
+  const offscreenRef = useRef<HTMLCanvasElement | null>(null);
 
   const [tool, setTool] = useState<Tool>('hand');
   const [pickA, setPickA] = useState<PickInfo | null>(null);
@@ -36,6 +35,8 @@ const App = () => {
   const [scale, setScale] = useState(1);
   const imgViewRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef({ drag: false, startX: 0, startY: 0 });
+
+  const [isScaleOpen, setIsScaleOpen] = useState(false);
 
   // ========================= helpers =========================
 
@@ -74,7 +75,6 @@ const App = () => {
       renderGrayBit7(off, gb7DataRef.current);
       const octx = off.getContext('2d')!;
       octx.imageSmoothingEnabled = false;
-
       ctx.drawImage(off, 0, 0, off.width, off.height, 0, 0, targetW, targetH);
     }
   }
@@ -145,7 +145,7 @@ const App = () => {
     const srcY = Math.max(0, Math.min(imageData.height - 1, Math.floor(y / scale)));
 
     const ctx = canvas.getContext('2d')!;
-    const d = ctx.getImageData(x, y, 1, 1).data; // читаем из отображённого канваса
+    const d = ctx.getImageData(x, y, 1, 1).data;
     let rgb: RGB = { r: d[0], g: d[1], b: d[2] };
     let gb7: number | undefined;
 
@@ -179,17 +179,14 @@ const App = () => {
     dragRef.current.startY = e.clientY;
     imgViewRef.current.style.cursor = 'grabbing';
   };
-
   const onImgViewMouseUp = () => {
     dragRef.current.drag = false;
     if (imgViewRef.current) imgViewRef.current.style.cursor = 'auto';
   };
-
   const onImgViewMouseLeave = () => {
     dragRef.current.drag = false;
     if (imgViewRef.current) imgViewRef.current.style.cursor = 'auto';
   };
-
   const onImgViewMouseMove = (e: React.MouseEvent) => {
     if (!dragRef.current.drag || !imgViewRef.current) return;
     e.preventDefault();
@@ -231,6 +228,103 @@ const App = () => {
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
+
+  // ========================= RESAMPLE / APPLY (возвращено) =========================
+
+  function applyScale(nextW: number, nextH: number, method: 'nearest' | 'bilinear') {
+    if (!imageData.width || !imageData.height) return;
+
+    if (imageData.kind === 'RGB' && srcImgRef.current) {
+      const src = srcImgRef.current;
+      const off = document.createElement('canvas');
+      off.width = nextW;
+      off.height = nextH;
+      const ctx = off.getContext('2d')!;
+      ctx.imageSmoothingEnabled = method === 'bilinear';
+      ctx.imageSmoothingQuality = method === 'bilinear' ? 'high' : 'low';
+      ctx.clearRect(0, 0, nextW, nextH);
+      ctx.drawImage(src, 0, 0, nextW, nextH);
+
+      const dataUrl = off.toDataURL(); // PNG
+      const img = new Image();
+      img.onload = () => {
+        srcImgRef.current = img;
+        gb7DataRef.current = null;
+        setImageData({
+          width: img.width,
+          height: img.height,
+          depth: getColorDepth(img),
+          kind: 'RGB',
+        });
+        setScale(1);
+      };
+      img.src = dataUrl;
+      return;
+    }
+
+    if (imageData.kind === 'GB7' && gb7DataRef.current) {
+      const { width: sw, height: sh } = gb7DataRef.current;
+      const spx = (gb7DataRef.current as any).pixels as Uint8Array; // 0..127
+      const dpx = new Uint8Array(nextW * nextH);
+
+      const clamp = (v: number, lo: number, hi: number) => (v < lo ? lo : v > hi ? hi : v);
+
+      if (method === 'nearest') {
+        for (let y = 0; y < nextH; y++) {
+          const sy = Math.min(sh - 1, Math.round((y * sh) / nextH));
+          for (let x = 0; x < nextW; x++) {
+            const sx = Math.min(sw - 1, Math.round((x * sw) / nextW));
+            dpx[y * nextW + x] = spx[sy * sw + sx];
+          }
+        }
+      } else {
+        // bilinear 7-бит
+        const scaleX = (sw - 1) / Math.max(1, nextW - 1);
+        const scaleY = (sh - 1) / Math.max(1, nextH - 1);
+        for (let y = 0; y < nextH; y++) {
+          const fy = y * scaleY;
+          const y0 = Math.floor(fy);
+          const y1 = Math.min(sh - 1, y0 + 1);
+          const wy = fy - y0;
+
+          for (let x = 0; x < nextW; x++) {
+            const fx = x * scaleX;
+            const x0 = Math.floor(fx);
+            const x1 = Math.min(sw - 1, x0 + 1);
+            const wx = fx - x0;
+
+            const p00 = spx[y0 * sw + x0];
+            const p10 = spx[y0 * sw + x1];
+            const p01 = spx[y1 * sw + x0];
+            const p11 = spx[y1 * sw + x1];
+
+            const top = p00 * (1 - wx) + p10 * wx;
+            const bot = p01 * (1 - wx) + p11 * wx;
+            const val = Math.round(top * (1 - wy) + bot * wy);
+
+            dpx[y * nextW + x] = clamp(val, 0, 127);
+          }
+        }
+      }
+
+      const nextData: AppImageData = {
+        ...gb7DataRef.current,
+        width: nextW,
+        height: nextH,
+        depth: 7,
+      } as AppImageData;
+      (nextData as any).pixels = dpx;
+
+      gb7DataRef.current = nextData;
+      setImageData({
+        ...nextData,
+        kind: 'GB7',
+        pixels: dpx,
+      });
+      setScale(1);
+      return;
+    }
+  }
 
   // ========================= render =========================
 
@@ -291,15 +385,13 @@ const App = () => {
         </button>
       )}
 
-      {/* модалка */}
       <ScaleModal
         open={isScaleOpen}
         onClose={() => setIsScaleOpen(false)}
         originW={imageData.width || 0}
         originH={imageData.height || 0}
         onApply={(nextW, nextH, method) => {
-          console.log('Применить масштаб:', nextW, nextH, method);
-          // тут можно вызвать пересчёт изображения
+          applyScale(nextW, nextH, method);
           setIsScaleOpen(false);
         }}
       />

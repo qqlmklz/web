@@ -91,16 +91,15 @@ canvas {
 .img-view {
   position: absolute;
   inset: 0;
-  left: 72px; /* место под тулбар */
-  overflow: auto; /* полосы прокрутки появляются при переполнении */
+  left: 72px;
+  overflow: auto;
   background: #f9fafb;
   cursor: grab;
 }
 
-/* Холст фактического размера (масштабируем перерисовкой) */
 .canvas {
   display: block;
-  margin: 60px; /* комфортные поля вокруг изображения */
+  margin: 60px;
   background: #fff;
   border-radius: 4px;
   box-shadow: 0 0 0 1px #e5e7eb;
