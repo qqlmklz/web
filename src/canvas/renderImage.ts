@@ -1,16 +1,16 @@
-import drawFittedImage from './drawFittedImage';
+import { fitCanvasToContainer } from '../utils/fitCanvas';
 
 export const renderImage = (canvas: HTMLCanvasElement, img: HTMLImageElement) => {
   const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  if (!ctx) return;
 
-  const tmpCanvas = document.createElement('canvas');
-  tmpCanvas.width = img.width;
-  tmpCanvas.height = img.height;
+  const iw = img.naturalWidth || img.width;
+  const ih = img.naturalHeight || img.height;
 
-  const tmpCtx = tmpCanvas.getContext('2d');
-  tmpCtx?.drawImage(img, 0, 0);
+  const { cssW, cssH } = fitCanvasToContainer(canvas, iw, ih);
 
-  drawFittedImage(ctx!, tmpCanvas, canvas);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.clearRect(0, 0, cssW, cssH);
+  ctx.drawImage(img, 0, 0, iw, ih, 0, 0, cssW, cssH);
 };

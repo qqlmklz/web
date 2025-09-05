@@ -101,7 +101,9 @@ const App = () => {
             kind: 'RGB',
           });
 
-          setScale(1);
+          requestAnimationFrame(() => {
+            setScale(fitScaleForView(img.width, img.height));
+          });
         };
         img.src = reader.result as string;
       };
@@ -119,7 +121,10 @@ const App = () => {
             pixels: (data as any).pixels as Uint8Array | undefined,
           });
 
-          setScale(1);
+          // авто-fit
+          requestAnimationFrame(() => {
+            setScale(fitScaleForView(data.width!, data.height!));
+          });
         } else {
           alert('Invalid GrayBit-7 file');
         }
@@ -324,6 +329,14 @@ const App = () => {
       setScale(1);
       return;
     }
+  }
+
+  function fitScaleForView(imgW: number, imgH: number) {
+    const view = imgViewRef.current;
+    if (!view) return 1;
+    const maxW = Math.max(1, view.clientWidth - 100);
+    const maxH = Math.max(1, view.clientHeight - 100);
+    return Math.min(maxW / imgW, maxH / imgH, 1);
   }
 
   // ========================= render =========================

@@ -89,18 +89,23 @@ canvas {
 }
 
 .img-view {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  left: 72px;
+  padding: 50px;
   overflow: auto;
-  background: #f9fafb;
-  cursor: grab;
+  display: grid;
+  place-items: center;
+  background: #101214;
+}
+
+.img-view canvas {
+  display: block;
+  max-width: none;
 }
 
 .canvas {
   display: block;
   margin: 60px;
   background: #fff;
-  border-radius: 4px;
   box-shadow: 0 0 0 1px #e5e7eb;
 }
