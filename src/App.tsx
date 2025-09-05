@@ -1,9 +1,11 @@
+import { Expand } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
 import { getColorDepth } from './canvas/getColorDepth';
 import { renderGrayBit7 } from './canvas/renderGrayBit7';
 import EyedropperPanel from './components/EyedropperPanel/EyedropperPanel';
 import ImageUploader from './components/ImageUploader/ImageUploader';
+import ScaleModal from './components/ScaleModal/ScaleModal';
 import StatusBar from './components/StatusBar/StatusBar';
 import Toolbar from './components/Toolbar/Toolbar';
 import { readGrayBit7 } from './parsers/readGrayBit7';
@@ -19,6 +21,7 @@ type AppStateImage = Partial<AppImageData> & {
 };
 
 const App = () => {
+  const [isScaleOpen, setIsScaleOpen] = useState(false);
   const [imageData, setImageData] = useState<AppStateImage>({});
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -262,6 +265,44 @@ const App = () => {
       />
 
       <EyedropperPanel a={pickA} b={pickB} />
+
+      {imageData.width && imageData.height && (
+        <button
+          style={{
+            position: 'fixed',
+            right: '16px',
+            bottom: '16px',
+            width: 56,
+            height: 56,
+            borderRadius: '50%',
+            border: 'none',
+            background: '#2b7cff',
+            color: '#fff',
+            cursor: 'pointer',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onClick={() => setIsScaleOpen(true)}
+          title="Изменить размер изображения"
+        >
+          <Expand size={28} strokeWidth={2.5} />
+        </button>
+      )}
+
+      {/* модалка */}
+      <ScaleModal
+        open={isScaleOpen}
+        onClose={() => setIsScaleOpen(false)}
+        originW={imageData.width || 0}
+        originH={imageData.height || 0}
+        onApply={(nextW, nextH, method) => {
+          console.log('Применить масштаб:', nextW, nextH, method);
+          // тут можно вызвать пересчёт изображения
+          setIsScaleOpen(false);
+        }}
+      />
     </div>
   );
 };
