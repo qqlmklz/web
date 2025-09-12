@@ -4,7 +4,6 @@ import './App.css';
 import { getColorDepth } from './canvas/getColorDepth';
 import { renderGrayBit7 } from './canvas/renderGrayBit7';
 import EyedropperPanel from './components/EyedropperPanel/EyedropperPanel';
-import ImageUploader from './components/ImageUploader/ImageUploader';
 import ScaleModal from './components/ScaleModal/ScaleModal';
 import StatusBar from './components/StatusBar/StatusBar';
 import Toolbar from './components/Toolbar/Toolbar';
@@ -84,6 +83,19 @@ const App = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (canvasRef.current) {
+      const c = canvasRef.current;
+      const ctx = c.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, c.width, c.height);
+      c.width = 1;
+      c.height = 1;
+    }
+    srcImgRef.current = null;
+    gb7DataRef.current = null;
+    offscreenRef.current = null;
+    setPickA(null);
+    setPickB(null);
 
     const reader = new FileReader();
 
@@ -343,7 +355,7 @@ const App = () => {
 
   return (
     <div>
-      <Toolbar tool={tool} setTool={setTool} />
+      <Toolbar tool={tool} setTool={setTool} onFileSelect={handleFileChange} />
 
       <div
         ref={imgViewRef}
@@ -358,8 +370,6 @@ const App = () => {
         )}
       </div>
 
-      {!imageData.width && !imageData.height && <ImageUploader onFileSelect={handleFileChange} />}
-
       <StatusBar
         width={imageData.width}
         height={imageData.height}
@@ -371,7 +381,9 @@ const App = () => {
         }}
       />
 
-      <EyedropperPanel a={pickA} b={pickB} />
+      {tool === 'eyedropper' && imageData.width && imageData.height && (
+        <EyedropperPanel a={pickA} b={pickB} />
+      )}
 
       {imageData.width && imageData.height && (
         <button
