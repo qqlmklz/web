@@ -1,29 +1,34 @@
 import { AppImageData } from '../types/ImageData';
 
-export const renderGrayBit7 = (canvas: HTMLCanvasElement, image: AppImageData) => {
+export function renderGrayBit7(canvas: HTMLCanvasElement, data: AppImageData) {
   const ctx = canvas.getContext('2d');
-  if (!ctx || !image?.pixels || !image.width || !image.height) return;
+  if (!ctx || !data?.width || !data?.height) return;
 
-  const { width, height, depth, pixels } = image;
+  const w = data.width!;
+  const h = data.height!;
+  canvas.width = w;
+  canvas.height = h;
 
-  canvas.width = width;
-  canvas.height = height;
-
-  const imgData = ctx.createImageData(width, height);
-  const hasMask = depth === 8;
-
-  for (let i = 0; i < pixels.length; i++) {
-    const byte = pixels[i];
-    const g7 = byte & 0b0111_1111; // 0..127
-    const g = Math.round((g7 / 127) * 255); // 0..255
-    const a = hasMask ? (byte & 0b1000_0000 ? 255 : 0) : 255;
-
-    const idx = i * 4;
-    imgData.data[idx + 0] = g;
-    imgData.data[idx + 1] = g;
-    imgData.data[idx + 2] = g;
-    imgData.data[idx + 3] = a;
+  const px = (data as any).pixels as Uint8Array | undefined;
+  if (!px || px.length !== w * h) {
+    ctx.clearRect(0, 0, w, h);
+    return;
   }
 
-  ctx.putImageData(imgData, 0, 0);
-};
+  const hasMask = (data.depth ?? 7) === 8;
+
+  const img = ctx.createImageData(w, h);
+  let di = 0;
+  for (let i = 0; i < px.length; i++) {
+    const b = px[i];
+    const g7 = b & 0x7f;
+    const g = (g7 << 1) | (g7 >> 6);
+
+    img.data[di++] = g; // R
+    img.data[di++] = g; // G
+    img.data[di++] = g; // B
+    img.data[di++] = hasMask ? (b & 0x80 ? 255 : 0) : 255;
+  }
+
+  ctx.putImageData(img, 0, 0);
+}

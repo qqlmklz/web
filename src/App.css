@@ -2,6 +2,10 @@
   text-align: center;
 }
 
+body {
+  color: black;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -88,6 +92,19 @@ canvas {
   display: block;
 }
 
+.canvas {
+  background: transparent !important;
+}
+.img-view {
+  background: transparent !important;
+}
+
+html,
+body,
+#root {
+  background: transparent !important;
+}
+
 .img-view {
   position: fixed;
   inset: 0;
@@ -106,6 +123,4 @@ canvas {
 .canvas {
   display: block;
   margin: 60px;
-  background: #fff;
-  box-shadow: 0 0 0 1px #e5e7eb;
 }
