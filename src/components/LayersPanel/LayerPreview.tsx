@@ -39,21 +39,15 @@ export default function LayerPreview({ layer }: Props) {
     const imgLayer = layer as ImageLayer;
 
     const src = imgLayer.previewRaw ?? imgLayer.imageData;
-
-    const copy = new ImageData(new Uint8ClampedArray(src.data), src.width, src.height);
-    flattenAlphaToWhite(copy.data);
+    const draw = new ImageData(new Uint8ClampedArray(src.data), src.width, src.height);
+    flattenAlphaToWhite(draw.data);
 
     const off = document.createElement('canvas');
-    off.width = copy.width;
-    off.height = copy.height;
-    off.getContext('2d')!.putImageData(copy, 0, 0);
+    off.width = draw.width;
+    off.height = draw.height;
+    off.getContext('2d')!.putImageData(draw, 0, 0);
 
-    const k = Math.min(PREV_W / off.width, PREV_H / off.height);
-    const dw = Math.max(1, Math.floor(off.width * k));
-    const dh = Math.max(1, Math.floor(off.height * k));
-    const dx = Math.floor((PREV_W - dw) / 2);
-    const dy = Math.floor((PREV_H - dh) / 2);
-
+    const { dw, dh, dx, dy } = fit(off.width, off.height, PREV_W, PREV_H);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(off, 0, 0, off.width, off.height, dx, dy, dw, dh);

@@ -19,6 +19,7 @@ import { gb7ToRgb, rgbToOKLch, rgbToXyz, xyzToLab } from './utils/color';
 import { compositeLayers } from './utils/composite';
 import { clampXY, eventToCanvasXY } from './utils/coords';
 
+import CurvesPanel from './components/CurvesPanel/CurvesPanel';
 import { burnAlphaToWhite } from './helpers/image/burnAlphaToWhite';
 import { currentImageToImageData, hasAlphaForCurrentImage } from './helpers/image/currentImage';
 import { stripAlpha } from './helpers/image/stripAlpha';
@@ -58,6 +59,155 @@ const App = () => {
     () => Boolean(imageData.width && imageData.height) || layers.length > 0,
     [imageData.width, imageData.height, layers.length]
   );
+
+  const [isCurvesOpen, setCurvesOpen] = useState(false);
+
+  const activeLayer = useMemo(
+    () => layers.find((l) => l.id === activeLayerId) ?? null,
+    [layers, activeLayerId]
+  );
+
+  const curvesBackupRef = useRef<ImageData | null>(null);
+  const curvesCommittedRef = useRef(false);
+
+  // Открывает панель кривых: делает глубокий бэкап текущего ImageData активного слоя.
+  function openCurves() {
+    const layer = getActiveImageLayer();
+    if (layer)
+      curvesBackupRef.current = new ImageData(
+        new Uint8ClampedArray(layer.imageData.data),
+        layer.imageData.width,
+        layer.imageData.height
+      );
+    setCurvesOpen(true);
+  }
+
+  type LUT = Uint8Array;
+  type LUTs = { r?: LUT; g?: LUT; b?: LUT; a?: LUT };
+
+  // Применяет LUT-ы к ImageData и возвращает НОВЫЙ ImageData; target: 'rgb' или 'alpha'.
+  function applyLUTsToImageData(src: ImageData, luts: LUTs, target: 'rgb' | 'alpha'): ImageData {
+    const out = new ImageData(src.width, src.height);
+    const s = src.data;
+    const d = out.data;
+
+    const lr = luts.r,
+      lg = luts.g,
+      lb = luts.b,
+      la = luts.a;
+
+    for (let i = 0; i < s.length; i += 4) {
+      const r = s[i],
+        g = s[i + 1],
+        b = s[i + 2],
+        a = s[i + 3];
+
+      if (target === 'rgb') {
+        d[i] = lr ? lr[r] : r;
+        d[i + 1] = lg ? lg[g] : g;
+        d[i + 2] = lb ? lb[b] : b;
+        d[i + 3] = a;
+      } else {
+        d[i] = r;
+        d[i + 1] = g;
+        d[i + 2] = b;
+        d[i + 3] = la ? la[a] : a;
+      }
+    }
+    return out;
+  }
+
+  // Записывает результат в активный слой и обновляет previewRaw (без альфы).
+  function setActiveLayerImage(result: ImageData) {
+    const previewOpaque = stripAlpha(result);
+    setLayers((prev) =>
+      prev.map((l) =>
+        l.id === activeLayer?.id && l.type === 'image'
+          ? { ...l, imageData: result, previewRaw: previewOpaque }
+          : l
+      )
+    );
+  }
+
+  // Возвращает активный image-слой или null, если активный слой не типа 'image'.
+  function getActiveImageLayer() {
+    const l = layers.find((x) => x.id === activeLayerId);
+    return l && l.type === 'image' ? l : null;
+  }
+
+  // Обновляет imageData у слоя с id и синхронно пересчитывает previewRaw.
+  function updateLayerImageData(id: string, data: ImageData) {
+    const previewOpaque = stripAlpha(data);
+    setLayers((prev) =>
+      prev.map((l) =>
+        l.id === id && l.type === 'image' ? { ...l, imageData: data, previewRaw: previewOpaque } : l
+      )
+    );
+  }
+
+  const curvesPreviewEnabledRef = useRef(false);
+
+  // Лайв-предпросмотр: применяет LUT-ы к бэкапу и временно подменяет изображение слоя.
+  function handleCurvesApply(luts: LUTs, target: 'rgb' | 'alpha') {
+    const layer = getActiveImageLayer();
+    if (!layer || !curvesPreviewEnabledRef.current) return;
+
+    const base = curvesBackupRef.current ?? layer.imageData;
+    const previewImg = applyLUTsToImageData(base, luts, target);
+
+    updateLayerImageData(layer.id, previewImg);
+  }
+
+  // Финальное применение: считает от бэкапа/текущего и записывает новую картинку в слой.
+  function handleCurvesCommit(luts: LUTs, target: 'rgb' | 'alpha') {
+    const layer = getActiveImageLayer();
+    if (!layer) return;
+
+    const base = curvesBackupRef.current ?? layer.imageData;
+    const committed = applyLUTsToImageData(base, luts, target);
+
+    updateLayerImageData(layer.id, committed);
+
+    curvesPreviewEnabledRef.current = false;
+    curvesBackupRef.current = null;
+  }
+
+  // Вкл/выкл предпросмотра: при включении создаёт бэкап, при выключении откатывает.
+  function handleCurvesPreviewChange(enabled: boolean, luts?: LUTs, target?: 'rgb' | 'alpha') {
+    const layer = getActiveImageLayer();
+    if (!layer) return;
+
+    curvesPreviewEnabledRef.current = enabled;
+
+    if (enabled) {
+      if (!curvesBackupRef.current) {
+        curvesBackupRef.current = new ImageData(
+          new Uint8ClampedArray(layer.imageData.data),
+          layer.imageData.width,
+          layer.imageData.height
+        );
+      }
+      if (luts && target) {
+        const img = applyLUTsToImageData(curvesBackupRef.current, luts, target);
+        updateLayerImageData(layer.id, img);
+      }
+    } else {
+      if (curvesBackupRef.current) {
+        updateLayerImageData(layer.id, curvesBackupRef.current);
+      }
+    }
+  }
+
+  // Закрывает панель: если не коммитили — откатывает слой к бэкапу и очищает бэкап.
+  const closeCurves = () => {
+    if (activeLayer && activeLayer.type === 'image') {
+      if (!curvesCommittedRef.current && curvesBackupRef.current) {
+        setActiveLayerImage(curvesBackupRef.current);
+      }
+    }
+    setCurvesOpen(false);
+    curvesBackupRef.current = null;
+  };
 
   /** Рисует исходник без композита для первого кадра. */
   const drawOriginalOnce = () => {
@@ -484,9 +634,34 @@ const App = () => {
     return () => window.removeEventListener('keydown', onKey);
   }, [tool]);
 
+  // Можно ли открывать панель Curves: есть картинка и активный image-слой
+  const canOpenCurves = useMemo(() => {
+    return Boolean(
+      imageData.width && imageData.height && activeLayer && activeLayer.type === 'image'
+    );
+  }, [imageData.width, imageData.height, activeLayer]);
+
+  const toggleCurves = () => {
+    if (!canOpenCurves) return;
+    if (isCurvesOpen) closeCurves();
+    else openCurves();
+  };
+
+  // Если картинка исчезла/слой неактивен — закрываем панель
+  useEffect(() => {
+    if (!canOpenCurves && isCurvesOpen) closeCurves();
+  }, [canOpenCurves, isCurvesOpen]);
+
   return (
     <div>
-      <Toolbar tool={tool} setTool={setTool} onFileSelect={handleFileChange} />
+      <Toolbar
+        tool={tool}
+        setTool={setTool}
+        onFileSelect={handleFileChange}
+        isCurvesOpen={isCurvesOpen}
+        canOpenCurves={canOpenCurves}
+        onToggleCurves={toggleCurves}
+      />
 
       <div
         ref={imgViewRef}
@@ -538,24 +713,47 @@ const App = () => {
         </button>
       )}
 
-      {showLayers && (
-        <LayersPanel
-          layers={layers}
-          activeId={activeLayerId}
-          canAddMore={layers.length < 2}
-          onAddLayer={onAddLayer}
-          onAddImageLayer={onAddImageLayer}
-          onSetActive={onSetActive}
-          onReorder={onReorder}
-          onToggleVisible={onToggleVisible}
-          onRemove={onRemove}
-          onOpacity={onOpacity}
-          onBlend={onBlend}
-          onToggleAlphaHidden={onToggleAlphaHidden}
-          onRemoveAlpha={onRemoveAlpha}
-          onSetColor={onSetColor}
-        />
-      )}
+      <div className="side-stack">
+        <div className="panel-wrap">
+          {showLayers && (
+            <div className="panel-card">
+              <LayersPanel
+                layers={layers}
+                activeId={activeLayerId}
+                canAddMore={layers.length < 2}
+                onAddLayer={onAddLayer}
+                onAddImageLayer={onAddImageLayer}
+                onSetActive={onSetActive}
+                onReorder={onReorder}
+                onToggleVisible={onToggleVisible}
+                onRemove={onRemove}
+                onOpacity={onOpacity}
+                onBlend={onBlend}
+                onToggleAlphaHidden={onToggleAlphaHidden}
+                onRemoveAlpha={onRemoveAlpha}
+                onSetColor={onSetColor}
+              />
+            </div>
+          )}
+        </div>
+
+        {isCurvesOpen && activeLayer && activeLayer.type === 'image' && (
+          <div className="panel-wrap">
+            <div className="panel-card">
+              <aside style={{ width: 400 }}>
+                <CurvesPanel
+                  layer={activeLayer}
+                  isGB7={imageData.kind === 'GB7'}
+                  onApply={handleCurvesApply}
+                  onCommit={handleCurvesCommit}
+                  onPreviewChange={handleCurvesPreviewChange}
+                  onClose={closeCurves}
+                />
+              </aside>
+            </div>
+          </div>
+        )}
+      </div>
 
       <ScaleModal
         open={isScaleOpen}

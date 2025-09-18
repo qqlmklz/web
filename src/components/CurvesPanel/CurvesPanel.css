@@ -1,0 +1,156 @@
+.curves-panel {
+  width: 100%;
+}
+
+.curves-header {
+  position: relative;
+  padding-right: 44px;
+}
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #dcdcdc;
+  background: #fff;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  padding: 6px 12px 0;
+  border-bottom: 1px solid #eee;
+  overflow-x: auto;
+}
+.tab {
+  padding: 6px 10px;
+  min-width: 40px;
+  height: 30px;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  background: #f6f7f9;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  font-size: 13px;
+  color: #333;
+  line-height: 18px;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.tab.active {
+  background: #fff;
+  border-color: #ddd;
+  font-weight: 600;
+  color: #111;
+}
+
+.panel-body.wide {
+  padding: 12px;
+}
+
+.hist-wrap {
+  padding: 8px 0;
+}
+.hist-title {
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 6px;
+}
+.hist-svg {
+  width: 100%;
+  height: 240px;
+  display: block;
+}
+.hist-frame {
+  fill: #fff;
+  stroke: #dadada;
+}
+.hist-line {
+  stroke: #9aa0a6;
+  stroke-width: 1.2;
+  fill: none;
+}
+.curve-line {
+  stroke: #111;
+  stroke-width: 1.6;
+  fill: none;
+}
+.curve-point {
+  fill: #111;
+}
+
+.grid-2x2.full {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  margin: 10px 0 12px;
+}
+.field {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #111;
+}
+.field input[type='number'] {
+  width: 100%;
+  height: 34px;
+  padding: 6px 10px;
+  border: 1px solid #dcdcdc;
+  border-radius: 10px;
+  background: #fff;
+  color: #111;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.field input[type='number']::-webkit-outer-spin-button,
+.field input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.chk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin: 6px 0 12px;
+}
+.footer-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn {
+  border: 1px solid #dcdcdc;
+  background: #f7f7f7;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn.primary {
+  background: #1c66f0;
+  border-color: #1c66f0;
+  color: #fff;
+}
+.btn.ghost {
+  background: #fff;
+}
+.icon-btn {
+  border: 1px solid #dcdcdc;
+  background: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+}

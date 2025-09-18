@@ -42,3 +42,8 @@
   border-color: #1677ff33;
   color: #1677ff;
 }
+
+.tool-btn.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
