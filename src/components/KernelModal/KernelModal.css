@@ -1,0 +1,148 @@
+.kernelDialog {
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  width: 600px;
+  max-width: 90vw;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.25);
+  background: #fff;
+  color: black;
+}
+
+.kernelWrap {
+  padding: 16px;
+}
+
+.kernelTitle {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.kernelTargetRow {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kernelTargetHint {
+  font-size: 12px;
+  color: #666;
+  margin-right: 8px;
+}
+
+.kernelRadioLbl {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.kernelGrid {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.kernelSubLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.kernelSelect {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background: #fff;
+  color: black;
+}
+
+.kernelCellsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.kernelCellInput {
+  padding: 6px;
+  text-align: center;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  outline: none;
+}
+
+.kernelCellInput:focus {
+  border-color: #7aa6ff;
+  box-shadow: 0 0 0 3px rgba(122, 166, 255, 0.25);
+}
+
+.kernelPreviewToggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  user-select: none;
+}
+
+.kernelPreviewBox {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 240px;
+  height: 240px;
+  display: grid;
+  place-items: center;
+  background-image:
+    linear-gradient(45deg, #f3f3f3 25%, transparent 25%),
+    linear-gradient(-45deg, #f3f3f3 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #f3f3f3 75%),
+    linear-gradient(-45deg, transparent 75%, #f3f3f3 75%);
+  background-size: 16px 16px;
+  background-position:
+    0 0,
+    0 8px,
+    8px -8px,
+    -8px 0px;
+}
+
+.kernelActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.btn:hover {
+  background: #f6f6f6;
+}
+
+.btnPrimary {
+  border-color: #2b7cff;
+  background: #2b7cff;
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  filter: brightness(0.95);
+}
+
+.btnSecondary {
+  color: #333;
+}

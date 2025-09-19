@@ -21,6 +21,7 @@ export interface ImageLayer extends BaseLayer {
 export interface ColorLayer extends BaseLayer {
   type: 'color';
   color: { r: number; g: number; b: number; a?: number };
+  imageData?: ImageData;
 }
 
 export type AppLayer = ImageLayer | ColorLayer;

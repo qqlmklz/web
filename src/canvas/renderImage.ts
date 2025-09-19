@@ -1,4 +1,4 @@
-import { fitCanvasToContainer } from '../utils/fitCanvas';
+import { fitCanvasToContainer } from '../helpers/view/fitCanvas';
 
 export const renderImage = (canvas: HTMLCanvasElement, img: HTMLImageElement) => {
   const ctx = canvas.getContext('2d');

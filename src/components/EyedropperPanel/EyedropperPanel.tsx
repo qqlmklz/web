@@ -1,5 +1,5 @@
+import { apcaContrast, wcagContrast } from '../../helpers/color/contrast';
 import type { PickInfo } from '../../types/Color';
-import { apcaContrast, wcagContrast } from '../../utils/contrast';
 import './EyedropperPanel.css';
 
 const Space = ({ name, tip }: { name: string; tip: string }) => (

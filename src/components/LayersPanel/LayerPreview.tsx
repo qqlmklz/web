@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
+import { flattenAlphaToWhite } from '../../helpers/composite/blend';
 import type { AppLayer, ImageLayer } from '../../types/layers';
-import { flattenAlphaToWhite } from '../../utils/blend';
 
 const PREV_W = 44;
 const PREV_H = 28;

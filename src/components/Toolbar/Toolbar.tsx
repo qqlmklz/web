@@ -1,4 +1,4 @@
-import { Hand, Pipette, Spline, Upload } from 'lucide-react';
+import { Download, Filter, Hand, Pipette, Spline, Upload } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import type { Tool } from '../../types/Color';
 import './Toolbar.css';
@@ -10,6 +10,10 @@ type Props = {
   isCurvesOpen: boolean;
   canOpenCurves: boolean;
   onToggleCurves: () => void;
+  canExport: boolean;
+  onOpenExport: () => void;
+  canKernel: boolean;
+  onOpenKernel: () => void;
 };
 
 export default function Toolbar({
@@ -19,6 +23,10 @@ export default function Toolbar({
   isCurvesOpen,
   canOpenCurves,
   onToggleCurves,
+  canExport,
+  onOpenExport,
+  canKernel,
+  onOpenKernel,
 }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -75,6 +83,22 @@ export default function Toolbar({
         onClick={() => canOpenCurves && onToggleCurves()}
       >
         <Spline size={16} />
+      </button>
+
+      <button
+        title={canKernel ? 'Kernel (Custom filter)…' : 'Выберите слой, чтобы применить Kernel'}
+        className={`tool-btn ${!canKernel ? 'disabled' : ''}`}
+        onClick={() => canKernel && onOpenKernel()}
+      >
+        <Filter size={16} />
+      </button>
+
+      <button
+        title={canExport ? 'Экспорт изображения' : 'Экспорт недоступен — нет изображения'}
+        className={`tool-btn ${!canExport ? 'disabled' : ''}`}
+        onClick={() => canExport && onOpenExport()}
+      >
+        <Download size={16} />
       </button>
     </div>
   );

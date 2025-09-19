@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { InterpolationMethod, getInterpolationHint } from '../../utils/interpolation';
+import { InterpolationMethod, getInterpolationHint } from '../../helpers/resample/interpolation';
 import './ScaleModal.css';
 
 type Units = 'pixels' | 'percent';
