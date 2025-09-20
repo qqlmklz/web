@@ -131,6 +131,7 @@ body,
   right: 16px;
   bottom: 16px;
   width: min(420px, 32vw);
+  height: fit-content;
   display: flex;
   flex-direction: column;
   gap: 12px;
