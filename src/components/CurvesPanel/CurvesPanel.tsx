@@ -18,6 +18,9 @@ type Props = {
   onPreviewChange?: (enabled: boolean, luts?: LUTs, target?: 'rgb' | 'alpha') => void;
 };
 
+const clamp = (n: number, lo: number, hi: number) =>
+  Number.isNaN(n) ? lo : Math.max(lo, Math.min(hi, Math.round(n)));
+
 const clamp255 = (n: number) => (Number.isNaN(n) ? 0 : Math.max(0, Math.min(255, Math.round(n))));
 const detectGB7 = (layer: AppLayer | null) => {
   const any = layer as any;
@@ -222,8 +225,14 @@ const CurvesPanel: React.FC<Props> = ({
               max={255}
               step={1}
               value={cur.p1.inVal}
-              onChange={(e) => setCur({ p1: { ...cur.p1, inVal: clamp255(+e.target.value) } })}
-              onBlur={(e) => (e.currentTarget.value = String(clamp255(+e.currentTarget.value)))}
+              onChange={(e) => {
+                const v = clamp(+e.target.value, 0, 255);
+                const fixed = v > cur.p2.inVal ? cur.p2.inVal : v;
+                setCur({ p1: { ...cur.p1, inVal: fixed } });
+              }}
+              onBlur={(e) =>
+                (e.currentTarget.value = String(clamp(+e.currentTarget.value, 0, 255)))
+              }
             />
           </label>
           <label className="field">
@@ -246,8 +255,14 @@ const CurvesPanel: React.FC<Props> = ({
               max={255}
               step={1}
               value={cur.p2.inVal}
-              onChange={(e) => setCur({ p2: { ...cur.p2, inVal: clamp255(+e.target.value) } })}
-              onBlur={(e) => (e.currentTarget.value = String(clamp255(+e.currentTarget.value)))}
+              onChange={(e) => {
+                const v = clamp(+e.target.value, 0, 255);
+                const fixed = v < cur.p1.inVal ? cur.p1.inVal : v;
+                setCur({ p2: { ...cur.p2, inVal: fixed } });
+              }}
+              onBlur={(e) =>
+                (e.currentTarget.value = String(clamp(+e.currentTarget.value, 0, 255)))
+              }
             />
           </label>
           <label className="field">
